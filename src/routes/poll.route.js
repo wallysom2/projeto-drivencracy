@@ -2,9 +2,9 @@ import {Router} from "express";
 
 import {getPoll, addPoll} from "../controllers/poll.controller.js";
 
-const poolRouter = Router();
+const pollRouter = Router();
 
-poolRouter.get("/poll", getPoll);
-poolRouter.post("/poll", addPoll);
+pollRouter.get("/poll", getPoll);
+pollRouter.post("/poll", addPoll);
 
-export default poolRouter;
+export default pollRouter;

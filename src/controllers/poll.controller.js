@@ -9,7 +9,7 @@ export async function addPoll(req, res) {
   try {
     const checkPoll = await db.collection("polls").findOne({ title });
 
-    if (!checkPoll) {
+    if (!!checkPoll) {
       return res.status(409).send("Essa enquete já existe");
     }
 
