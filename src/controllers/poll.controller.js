@@ -130,3 +130,29 @@ export async function postChoice(req, res){
       res.sendStatus(500);
   }
 }
+
+export async function postVote(req, res){
+  const id = req.params.id;
+
+  const vote = {
+      createdAt: dayjs().format('YYYY-M-DD HH:mm'),
+      choiceId: id
+  }
+
+  try{
+      const isChoice = await db.collection('choice').findOne({ _id: new ObjectId(id)});
+      if(!isChoice) return res.status(404).send('Opção de voto nao existe');
+
+      const searchPoll = await db.collection('poll').findOne({ _id: new ObjectId(isChoice.pollId)});
+      const expiredDate = searchPoll.expiredAt;
+      const isExpired = dayjs().isAfter(expiredDate, 'days');
+
+      if(isExpired) return res.status(403).send('Enquete já está expirada!');
+
+      await db.collection('vote').insertOne(vote);
+      res.sendStatus(201);
+  } catch(e){
+      res.sendStatus(500);
+  }
+
+}
