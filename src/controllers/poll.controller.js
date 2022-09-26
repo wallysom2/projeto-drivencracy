@@ -106,10 +106,10 @@ export async function getPollResults(req, res) {
 }
 
 export async function postChoice(req, res){
-  const choiceBody = req.body;
+  const body = req.body;
   const choice = {
-      title: choiceBody.title,
-      pollId: choiceBody.pollId
+      title: body.title,
+      pollId: body.pollId
   }
 
   try{
