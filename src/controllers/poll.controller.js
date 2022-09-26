@@ -113,7 +113,7 @@ export async function postChoice(req, res){
   }
 
   try{
-      const searchPoll = await db.collection('poll').findOne({ _id: new ObjectId(choice.pollId) });
+      const searchPoll = await db.collection('polls').findOne({ _id: new ObjectId(choice.pollId) });
       if(!searchPoll) return res.status(404).send('Enquete não encontrada!');
 
       const newChoice = await db.collection('choice').findOne({title: choice.title});
@@ -131,7 +131,7 @@ export async function postChoice(req, res){
   }
 }
 
-export async function postVote(req, res){
+export async function postVote(req,res){
   const id = req.params.id;
 
   const vote = {
@@ -143,7 +143,7 @@ export async function postVote(req, res){
       const isChoice = await db.collection('choice').findOne({ _id: new ObjectId(id)});
       if(!isChoice) return res.status(404).send('Opção de voto nao existe');
 
-      const searchPoll = await db.collection('poll').findOne({ _id: new ObjectId(isChoice.pollId)});
+      const searchPoll = await db.collection('polls').findOne({ _id: new ObjectId(isChoice.pollId)});
       const expiredDate = searchPoll.expiredAt;
       const isExpired = dayjs().isAfter(expiredDate, 'days');
 
