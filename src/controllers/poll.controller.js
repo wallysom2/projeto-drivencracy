@@ -41,3 +41,20 @@ export async function getPoll(req, res) {
     return res.sendStatus(500);
   }
 }
+
+export async function getPollChoices(req, res) {
+  const pollId = req.params.id;
+
+  try {
+    const pollChoices = await db.collection("choices").find({ pollId: pollId }).toArray();
+
+    if (pollChoices.length === 0) {
+      return res.status(404).send("Enquete não encontrada");
+    }
+
+    return res.status(200).send(pollChoices);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+}
