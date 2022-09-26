@@ -1,6 +1,33 @@
 import dayjs from "dayjs";
-import connectDatabase from "../database/database.js"
-import pollSchema from "../schemas/poll.schema.js"
+import db from "../database/database.js"
+import { ObjectId } from "mongodb";
+
+export async function addPoll(req, res) {
+  const { title, expireAt } = req.body;
+  const poll = req.body;
+
+  try {
+    const checkPoll = await db.collection("polls").findOne({ title });
+
+    if (!checkPoll) {
+      return res.status(409).send("Essa enquete já existe");
+    }
+
+    if (!expireAt) {
+      let currentTime = dayjs().add(30, "day").format("YYYY-MM-D hh:mm");
+
+      const completedPoll = { title, expireAt: currentTime };
+      await db.collection("polls").insertOne(completedPoll);
+      return res.status(201).send(`Enquete "${title}" foi criada!`);
+    }
+
+    await db.collection("polls").insertOne(poll);
+    return res.status(201).send(`Enquete ${title} foi criada!`);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+}
 
 export async function getPoll(req, res) {
   const {polls} = res.locals;
@@ -9,25 +36,6 @@ export async function getPoll(req, res) {
     res.send(polls);
   } catch (error) {
     console.log("Error getting all polls.");
-    console.log(error);
-    return res.sendStatus(500);
-  }
-}
-
-export async function addPoll(req, res) {
-  const { error } = pollSchema.validate(req.body);
-  if(error) return res.status(422).send(error.details.map(detail => detail.message)); 
-
-  const {poll} = res.locals;
-  try {
-    const { title, expireAt } = req.body;
-    await connectDatabase.collection("polls").insertOne({
-      title, 
-      expireAt: dayjs().format('DD/MM'),
-    });
-    res.sendStatus(201);
-  } catch (error) {
-    console.log("Error adding new poll.");
     console.log(error);
     return res.sendStatus(500);
   }
