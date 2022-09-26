@@ -104,3 +104,29 @@ export async function getPollResults(req, res) {
     return res.sendStatus(500);
   }
 }
+
+export async function postChoice(req, res){
+  const choiceBody = req.body;
+  const choice = {
+      title: choiceBody.title,
+      pollId: choiceBody.pollId
+  }
+
+  try{
+      const searchPoll = await db.collection('poll').findOne({ _id: new ObjectId(choice.pollId) });
+      if(!searchPoll) return res.status(404).send('Enquete não encontrada!');
+
+      const newChoice = await db.collection('choice').findOne({title: choice.title});
+      if(newChoice) return res.status(409).send('Opçao ja existe');
+
+      const expiredDate = searchPoll.expireAt;
+      const isExpired = dayjs().isAfter(expiredDate, 'days');
+
+      if(isExpired) return res.status(403).send('Essa enquete ja está expirada');
+
+      await db.collection('choice').insertOne(choice);
+      res.status(201).send(choice);
+  } catch(e){
+      res.sendStatus(500);
+  }
+}
