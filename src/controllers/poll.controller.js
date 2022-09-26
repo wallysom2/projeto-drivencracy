@@ -14,28 +14,29 @@ export async function addPoll(req, res) {
     }
 
     if (!expireAt) {
-      let currentTime = dayjs().add(30, "day").format("YYYY-MM-D hh:mm");
+      let datePoll = dayjs().add(30, "day").format("YYYY-MM-D hh:mm");
 
-      const completedPoll = { title, expireAt: currentTime };
-      await db.collection("polls").insertOne(completedPoll);
-      return res.status(201).send(`Enquete "${title}" foi criada!`);
+      const newPoll = { title, expireAt: datePoll };
+      await db.collection("polls").insertOne(newPoll);
+      return res.status(201).send(`Enquete "${title}" criada!`);
     }
 
     await db.collection("polls").insertOne(poll);
-    return res.status(201).send(`Enquete ${title} foi criada!`);
+    return res.status(201).send(`Enquete ${title} criada!`);
   } catch (error) {
     console.log(error);
     return res.sendStatus(500);
   }
 }
-
 export async function getPoll(req, res) {
-  const {polls} = res.locals;
+  const allPolls = await db.collection("polls").find().toArray();
+
   try {
-    const polls = await connectDatabase.collection("polls").toArray();
-    res.send(polls);
+    if (allPolls.length === 0) {
+      return res.status(204).send("Sem enquetes cadastradas!");
+    }
+    return res.status(200).send(allPolls);
   } catch (error) {
-    console.log("Error getting all polls.");
     console.log(error);
     return res.sendStatus(500);
   }
