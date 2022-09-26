@@ -1,17 +1,10 @@
-import mongoose from "mongoose";
+import { MongoClient } from "mongodb";
+import dotenv from "dotenv";
+dotenv.config();
 
-const connectDatabase = () => {
-  console.log("Wait connecting to the database...");
+const mongoClient = new MongoClient(process.env.MONGO_URI);
 
-  mongoose
-    .connect( process.env.MONGO_URI,
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      }
-    )
-    .then(() => console.log("MongoDB Atlas Connected!"))
-    .catch((err) => console.log(`Error connecting to MongoDB Atlas: ${err}`));
-};
+await mongoClient.connect();
 
-export default connectDatabase;
+const db = mongoClient.db("drivencracy");
+export default db;

@@ -2,6 +2,7 @@ import express from "express";
 import connectDatabase from "./src/database/database.js";
 import dotenv from "dotenv";
 
+import poolRouter from "./src/routes/poll.route.js"
 
 dotenv.config();
 
@@ -11,8 +12,6 @@ const app = express();
 connectDatabase();
 app.use(express.json());
 
-app.get ("/", (req,res) => {
-    res.send ("Tudo ok")
-})
+app.use(poolRouter);
 
 app.listen(port, () => console.log(`Server running on port: ${port}`));

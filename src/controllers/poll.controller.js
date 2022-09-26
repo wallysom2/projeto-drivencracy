@@ -21,7 +21,7 @@ export async function addPoll(req, res) {
   const {poll} = res.locals;
   try {
     const { title, expireAt } = req.body;
-    await db.collection("polls").insertOne({
+    await connectDatabase.collection("polls").insertOne({
       title, 
       expireAt: dayjs().format('DD/MM'),
     });
