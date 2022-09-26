@@ -58,3 +58,49 @@ export async function getPollChoices(req, res) {
     res.sendStatus(500);
   }
 }
+
+export async function getPollResults(req, res) {
+  const pollId = req.params.id;
+  try {
+    let choices = await db.collection("choices").find({ pollId: pollId }).toArray();
+    let numberVotes = 0;
+    let nameVotes = "";
+
+    for (let i = 0; i < choices.length; i++) {
+      let choiceVotes = choices[i].votes;
+
+      if (choiceVotes > numberVotes) {
+        numberVotes = choiceVotes;
+        nameVotes = choices[i].title;
+      }
+    }
+
+    const checkRepetition = await db.collection("choices").find({ votes: numberVotes }).toArray();
+    let result = {};
+    if (checkRepetition.length === 1) {
+      result = {
+        title: nameVotes,
+        votes: numberVotes,
+      };
+    }
+
+    if (checkRepetition.length > 1 && checkRepetition.length < 3) {
+      result = {
+        title: [checkRepetition[0].title, checkRepetition[1].title],
+        votes: [checkRepetition[0].votes, checkRepetition[1].votes],
+      };
+    }
+
+    if (checkRepetition.length >= 3) {
+      return res.status(207).send("Votos empatados");
+    }
+
+    const poll = await db.collection("polls").findOne({ _id: ObjectId(pollId) });
+    const pollResults = { ...poll, result };
+
+    return res.status(200).send(pollResults);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+}
