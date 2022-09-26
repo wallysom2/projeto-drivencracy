@@ -46,7 +46,7 @@ export async function getPollChoices(req, res) {
   const pollId = req.params.id;
 
   try {
-    const pollChoices = await db.collection("choices").find({ pollId: pollId }).toArray();
+    const pollChoices = await db.collection("choice").find({ pollId: pollId }).toArray();
 
     if (pollChoices.length === 0) {
       return res.status(404).send("Enquete não encontrada");
@@ -62,7 +62,7 @@ export async function getPollChoices(req, res) {
 export async function getPollResults(req, res) {
   const pollId = req.params.id;
   try {
-    let choices = await db.collection("choices").find({ pollId: pollId }).toArray();
+    let choices = await db.collection("choice").find({ pollId: pollId }).toArray();
     let numberVotes = 0;
     let nameVotes = "";
 
@@ -75,7 +75,7 @@ export async function getPollResults(req, res) {
       }
     }
 
-    const checkRepetition = await db.collection("choices").find({ votes: numberVotes }).toArray();
+    const checkRepetition = await db.collection("choice").find({ votes: numberVotes }).toArray();
     let result = {};
     if (checkRepetition.length === 1) {
       result = {
